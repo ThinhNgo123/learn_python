@@ -1,0 +1,31 @@
+{
+    "python.analysis.extraPaths": [
+        "./src/json",
+        "./src/func/sensor",
+        "./src/func/influx",
+        "./src/func/json_client",
+        "./src/hmi",
+        "./src/func/mem",
+        "./src/tool",
+        "./src/func/ftp",
+        "./src/func/logger",
+        "./src/func/internet",
+        "./src/func/json_server",
+        "./src/func/relay",
+        "./src/func/monitor",
+        "./src/driver",
+        "./src/hmi/atFrame",
+        "./src/func/ping",
+        "./src/func/power",
+        "./src/func/watchdog",
+        "./src/func/tool"
+    ],
+    "cSpell.words": [
+        "stopbits"
+    ],
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.autopep8"
+    },
+    "python.formatting.provider": "none",
+    "C_Cpp.errorSquiggles": "disabled"
+}

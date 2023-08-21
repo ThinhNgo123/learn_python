@@ -1,0 +1,13 @@
+\[Unit]
+Description= Atlab Service
+After=network.target
+StartLimitIntervalSec=0
+
+
+[Service]
+User=root
+WorkingDirectory=/atd/src/func/opnvpn
+ExecStart=/usr/bin/python3 opnvpn.py
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+\[Unit]
+Description= Atlab Service
+After=network.target
+StartLimitIntervalSec=0
+
+
+[Service]
+User=root
+WorkingDirectory=/atd/src
+ExecStart=/usr/bin/python3 main.py
+
+[Install]
+WantedBy=multi-user.target

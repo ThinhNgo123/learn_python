@@ -1,0 +1,607 @@
+{
+  "Notification": {
+    "Info": "192.168.1.21",
+    "Update": 0
+  },
+  "Boot": {
+    "Version Information": "V2.2.1",
+    "Company Name": "ATLab",
+    "Loading Information": "Loading",
+    "Loading Percentage": 100
+  },
+  "Monitor": {
+    "FTP1": {
+      "Type": "FTP Server",
+      "Status": "Normal",
+      "Infor": "Connecting"
+    },
+    "Temperature": {
+      "Type": "Sensor",
+      "Status": "Normal",
+      "Infor": "23.55 oC",
+      "Raw": 4.7535156249999995,
+      "Calib": 23.54736328124997
+    },
+    "Sen2": {
+      "Type": "Sensor",
+      "Status": "Normal",
+      "Infor": "26.77 oC",
+      "Raw": 2577,
+      "Calib": 26.77
+    },
+    "P123": {
+      "Type": "Relay",
+      "Status": "Normal",
+      "Infor": "On",
+      "Value": "On"
+    }
+  },
+  "Sensors": {
+    "Add": "No",
+    "Number": 2,
+    "Setting Sensor": "1",
+    "List": {
+      "1": {
+        "Name": "T1",
+        "ID": "1",
+        "Unit": "oC",
+        "Status": "Normal",
+        "Sampling Time": 10,
+        "Raw Value": 4.7623046874999995,
+        "Calib Value": 23.82202148437497,
+        "Source": {
+          "Protocol": "4-20mA CH-1",
+          "Datatype": "uint16",
+          "Modbus TCP/IP config": {
+            "Select": "No",
+            "IP": "192.168.1.11",
+            "ID": 1,
+            "Type": "holding",
+            "Address": 1
+          },
+          "Modbus RTU config": {
+            "Select": "No",
+            "Port": {
+              "Selection": "RS485-1",
+              "Config": {
+                "RS485-1": {
+                  "Baudrate": 9600,
+                  "Data bits": 8,
+                  "Stop bits": 1,
+                  "Parity": "even"
+                }
+              }
+            },
+            "ID": 1,
+            "Type": "holding",
+            "Address": 1
+          }
+        },
+        "Calib": {
+          "Function": "y = Ax + B",
+          "Index": {
+            "A": 31.25,
+            "B": -125,
+            "C": 1,
+            "D": 1
+          }
+        },
+        "Alarm": {
+          "Status": "Alarm",
+          "Raw": {
+            "Lower": 4,
+            "Upper": 20
+          },
+          "Calib": {
+            "Lower": 0,
+            "Upper": 500
+          }
+        },
+        "Error": {
+          "Status": "Normal",
+          "Raw": {
+            "Lower": 4,
+            "Upper": 20
+          },
+          "Calib": {
+            "Lower": 0,
+            "Upper": 500
+          }
+        },
+        "Limit": {
+          "Activation": "Disable",
+          "Upper": 100,
+          "Lower": 0
+        },
+        "Delete": "No",
+        "Clone": "No"
+      },
+      "2": {
+        "Name": "T2",
+        "ID": "2",
+        "Unit": "oC",
+        "Status": "Normal",
+        "Sampling Time": 10,
+        "Raw Value": 2640,
+        "Calib Value": 27.400000000000002,
+        "Source": {
+          "Protocol": "4-20mA CH-2",
+          "Datatype": "float32",
+          "Modbus TCP/IP config": {
+            "Select": "No",
+            "IP": "192.168.1.11",
+            "ID": 1,
+            "Type": "holding",
+            "Address": 1
+          },
+          "Modbus RTU config": {
+            "Select": "No",
+            "Port": {
+              "Selection": "RS485-1",
+              "Config": {
+                "RS485-1": {
+                  "Baudrate": 9600,
+                  "Data bits": 8,
+                  "Stop bits": 1,
+                  "Parity": "even"
+                }
+              }
+            },
+            "ID": 4,
+            "Type": "holding",
+            "Address": 12293
+          }
+        },
+        "Calib": {
+          "Function": "y = Ax + B",
+          "Index": {
+            "A": 31.25,
+            "B": -125,
+            "C": 1,
+            "D": 1
+          }
+        },
+        "Alarm": {
+          "Status": "Alarm",
+          "Raw": {
+            "Lower": 4,
+            "Upper": 20
+          },
+          "Calib": {
+            "Lower": 0,
+            "Upper": 500
+          }
+        },
+        "Error": {
+          "Status": "Normal",
+          "Raw": {
+            "Lower": 4,
+            "Upper": 20
+          },
+          "Calib": {
+            "Lower": 0,
+            "Upper": 5000
+          }
+        },
+        "Limit": {
+          "Activation": "Disable",
+          "Upper": 100,
+          "Lower": 0
+        },
+        "Delete": "No",
+        "Clone": "No"
+      }
+    },
+    "Default": {
+      "Name": "Default",
+      "ID": "6",
+      "Unit": "ppm",
+      "Status": "Normal",
+      "Sampling Time": 10,
+      "Raw Value": 4.7203124999999995,
+      "Calib Value": 5.7203124999999995,
+      "Source": {
+        "Protocol": "4-20mA CH-4",
+        "Datatype": "uint16",
+        "Modbus TCP/IP config": {
+          "Select": "No",
+          "IP": "192.168.1.11",
+          "ID": 1,
+          "Type": "holding",
+          "Address": 1
+        },
+        "Modbus RTU config": {
+          "Select": "No",
+          "Port": {
+            "Selection": "RS485-1",
+            "Config": {
+              "RS485-1": {
+                "Baudrate": 9600,
+                "Data bits": 8,
+                "Stop bits": 1,
+                "Parity": "even"
+              }
+            }
+          },
+          "ID": 1,
+          "Type": "holding",
+          "Address": 1
+        }
+      },
+      "Calib": {
+        "Function": "y = Ax + B",
+        "Index": {
+          "A": 1,
+          "B": 1,
+          "C": 1,
+          "D": 1
+        }
+      },
+      "Alarm": {
+        "Status": "Normal",
+        "Raw": {
+          "Lower": 4,
+          "Upper": 20
+        },
+        "Calib": {
+          "Lower": 0,
+          "Upper": 500
+        }
+      },
+      "Error": {
+        "Status": "Normal",
+        "Raw": {
+          "Lower": 4,
+          "Upper": 20
+        },
+        "Calib": {
+          "Lower": 0,
+          "Upper": 500
+        }
+      },
+      "Limit": {
+        "Activation": "Disable",
+        "Upper": 100,
+        "Lower": 0
+      },
+      "Delete": "No",
+      "Clone": "No"
+    }
+  },
+  "Relays": {
+    "Add": "No",
+    "Number": 1,
+    "Setting Relay": "1",
+    "List": {
+      "1": {
+        "Name": "P123",
+        "ID": "4",
+        "Status": "Normal",
+        "Value": "On",
+        "Source": {
+          "Input": {
+            "Protocol": "Local",
+            "MQTT": {
+              "Host": "broker",
+              "Port": 1883,
+              "Topic": "Relay trigger",
+              "User": "user",
+              "Password": "1883",
+              "Messages": {
+                "On": "On",
+                "Off": "Off"
+              }
+            },
+            "Local": {
+              "Mode": "Manual",
+              "Manual": "On",
+              "Timers": {
+                "Number": 1,
+                "Setting": "1",
+                "List": {
+                  "1": {
+                    "Activation": "Disable",
+                    "On": "12:12:12",
+                    "Off": "12:12:12"
+                  }
+                },
+                "Default": {
+                  "Activation": "Disable",
+                  "On": "12:12:12",
+                  "Off": "12:12:12"
+                }
+              }
+            }
+          },
+          "Output": {
+            "Protocol": "Relay CH-1",
+            "Modbus TCP/IP config": {
+              "Select": "No",
+              "IP": "192.168.1.23",
+              "ID": 1,
+              "Type": "coil",
+              "Address": 1
+            },
+            "Modbus RTU config": {
+              "Select": "No",
+              "Port": {
+                "Selection": "RS485-1",
+                "Config": {
+                  "RS485-1": {
+                    "Baudrate": 9600,
+                    "Data bits": 8,
+                    "Stop bits": 1,
+                    "Parity": "even"
+                  }
+                }
+              },
+              "ID": 1,
+              "Type": "coil",
+              "Address": 1
+            }
+          }
+        }
+      }
+    },
+    "Default": {
+      "Name": "Default",
+      "ID": "1",
+      "Status": "Normal",
+      "Value": "On",
+      "Source": {
+        "Input": {
+          "Protocol": "Local",
+          "MQTT": {
+            "Host": "",
+            "Port": "1883",
+            "Topic": "",
+            "User": "",
+            "Password": "",
+            "Messages": {
+              "On": "On",
+              "Off": "Off"
+            }
+          },
+          "Local": {
+            "Mode": "Manual",
+            "Manual": "On",
+            "Timers": {
+              "Number": 1,
+              "Setting": "1",
+              "List": {
+                "1": {
+                  "Activation": "Disable",
+                  "On": "12:12:12",
+                  "Off": "12:12:12"
+                }
+              },
+              "Default": {
+                "Activation": "Disable",
+                "On": "12:12:12",
+                "Off": "12:12:12"
+              }
+            }
+          }
+        },
+        "Output": {
+          "Protocol": "Relay CH-1",
+          "Modbus TCP/IP config": {
+            "Select": "No",
+            "IP": "192.168.1.23",
+            "ID": 1,
+            "Type": "coil",
+            "Address": 1
+          },
+          "Modbus RTU config": {
+            "Select": "No",
+            "Port": {
+              "Selection": "RS485-1",
+              "Config": {
+                "RS485-1": {
+                  "Baudrate": 9600,
+                  "Data bits": 8,
+                  "Stop bits": 1,
+                  "Parity": "even"
+                }
+              }
+            },
+            "ID": 1,
+            "Type": "coil",
+            "Address": 1
+          },
+          "ID": 1,
+          "Type": "holding",
+          "Address": 1
+        }
+      }
+    }
+  },
+  "FTP_Servers": {
+    "FTP1": {
+      "Status": "Connecting",
+      "Activate": "Enable",
+      "IP": "103.140.42.141",
+      "Port": 21,
+      "User": "test",
+      "Password": "qttd@123^",
+      "Folder": "/FTP_TEST/BAO_TEST",
+      "Send Time": 5,
+      "Check Time": 24,
+      "File Name": "filename",
+      "Time Out": 1
+    },
+    "FTP2": {
+      "Status": "disconnected",
+      "Activate": "Disable",
+      "IP": "103.140.42.141",
+      "Port": 21,
+      "User": "test",
+      "Password": "qttd@123^",
+      "Folder": "/FTP_TEST/BAO_TEST",
+      "Send Time": 5,
+      "Check Time": 24,
+      "File Name": "filename",
+      "Time Out": 1
+    }
+  },
+  "Database": {
+    "List": {
+      "Humidity": "Stored",
+      "Power": "Stored",
+      "Sen2": "Stored",
+      "Sens1": "Stored",
+      "Sens3": "Stored",
+      "Sensor": "Stored",
+      "Temperature": "Stored"
+    },
+    "Delete": "No",
+    "Store Time": 2,
+    "Influxdb2": {
+      "url": "http://localhost:8086",
+      "user": "atlab",
+      "password": "abc123123",
+      "org": "atlab",
+      "bucket": "atlab",
+      "token": "8o2Kn9lOlrphmamKc3kwrCrmFSmgWVQO9Y5VXqGdhDElxayj6B_NDfWtUc2VOxuMNw9d-00OD6g4K3TXyEA4eg==",
+      "location": "Hanoi"
+    }
+  },
+  "Memory": {
+    "Disk": {
+      "Status": "Mounted",
+      "Name": "Micro SD",
+      "Total": "58.81 GiB",
+      "Used": "5.21 GiB",
+      "Free": "52.98 GiB"
+    },
+    "USB": {
+      "1": {
+        "Status": "Unmounted",
+        "Name": "...",
+        "Total": "...",
+        "Used": "...",
+        "Free": "..."
+      },
+      "2": {
+        "Status": "Unmounted",
+        "Name": "...",
+        "Total": "...",
+        "Used": "...",
+        "Free": "..."
+      },
+      "3": {
+        "Status": "Unmounted",
+        "Name": "...",
+        "Total": "...",
+        "Used": "...",
+        "Free": "..."
+      }
+    }
+  },
+  "Errors": {
+    "Last": "",
+    "List": []
+  },
+  "Internet": {
+    "Local IP": "192.168.1.21",
+    "Ethernet": {
+      "Status": "Connecting",
+      "IP": "192.168.1.21",
+      "Gateway": "0.0.0.0",
+      "Netmask": "255.255.255.0",
+      "Speed": "1000/1000 (Mbps)",
+      "MAC": "02:00:d9:13:69:55"
+    },
+    "Wifi": {
+      "Status": "Disconnect",
+      "IP": "None",
+      "Gateway": "0.0.0.0",
+      "Netmask": "None",
+      "Speed": "100/1000 (Mbps)",
+      "MAC": "b8:f2:97:8d:5c:89"
+    },
+    "OpenVPN": {
+      "Status": "Connecting",
+      "IP": "10.8.0.3",
+      "Gateway": "10.8.0.1",
+      "LNK": "0.0.0.0",
+      "Speed": "1000/1000 (Mbps)",
+      "Netmask": "255.255.0.0"
+    }
+  },
+  "Web_Server": {
+    "Status": "Active",
+    "Activate": "Disable",
+    "Auto_Config": "Disable"
+  },
+  "Power": {
+    "Reset": "No",
+    "Shut_Down": "No"
+  },
+  "Advances": {
+    "Device_Analytic": "Analyzed information",
+    "Default_Restore": {
+      "Selection": "No"
+    },
+    "Backup_USB": {
+      "Setting": {
+        "Selection": "No"
+      },
+      "Database": {
+        "Selection": "No"
+      },
+      "Boot_Image": {
+        "Selection": "No"
+      }
+    },
+    "Restore_USB": {
+      "Setting": {
+        "Selection": "No"
+      },
+      "Database": {
+        "Selection": "No"
+      }
+    }
+  },
+  "Device": {
+    "ID": "10A23B123",
+    "subID": "-AAB",
+    "Location": {
+      "X": "21.036277",
+      "Y": "105.834922"
+    },
+    "Time_Zone": "+7",
+    "Type": "110kV-220V Transformer",
+    "Station": "Tram 1 Hai Ba Trung, Ha Noi"
+  },
+  "User": {
+    "User Permission": "admin",
+    "User": "ATLAB",
+    "Password": "aaaaaa",
+    "List": {
+      "1": {
+        "Permission": "user",
+        "User Name": "USER",
+        "Password": "abcd"
+      },
+      "2": {
+        "Permission": "user",
+        "User Name": "ADMIN",
+        "Password": "abcd"
+      },
+      "3": {
+        "Permission": "admin",
+        "User Name": "ATLAB",
+        "Password": "aaaaaa"
+      }
+    }
+  },
+  "About": {
+    "Url": "/atlab/src/image/ATLab_QR_240x240.jpg"
+  },
+  "Remote": {
+    "Request": "None",
+    "Target": "None",
+    "Response": "Update Successfully"
+  }
+}

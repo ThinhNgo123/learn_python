@@ -1,0 +1,5 @@
+[ERROR-0] : FTP check_connection
+[ERROR-1] : FTP send file
+[ERROR-2] : FTP _send_ftp
+[ERROR-3] : Update json to atData
+[ERROR-4] : Modbus TCP
