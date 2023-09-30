@@ -1,3 +1,4 @@
+from pprint import pprint, PrettyPrinter
 import os
 import random
 import math
@@ -40,7 +41,6 @@ def load_sprite_sheets(dir1, dir2, width, height, direction=False):
             all_sprites[image.replace(".png", "") + "_left"] = flip(sprites)
         else:
             all_sprites[image.replace(".png", "")] = sprites
-
     return all_sprites
 
 
