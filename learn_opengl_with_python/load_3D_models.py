@@ -77,8 +77,8 @@ import OpenGL.GL as gl
 import OpenGL.GLU as glu
 
 def init():
-	gl.glClearColor(0, 0, 0, 1) #dat mau nen
-	gl.glColor3f(255, 255, 255) #dat mau ve
+	gl.glClearColor(1, 1, 1, 1) #dat mau nen
+	gl.glColor3f(255, 0, 0) #dat mau ve
 	# dieu chinh he truc toa do
 	# gl.glMatrixMode(gl.GL_PROJECTION)
 	# gl.glLoadIdentity()

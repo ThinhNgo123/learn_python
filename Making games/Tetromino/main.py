@@ -367,7 +367,6 @@ def removeCompleteLines(board):
 			y -= 1
 	return numLinesRemoved
 
-
 def drawBoard(board):
 	pygame.draw.rect(DISPLAYSURF, BORDERCOLOR, (XMARGIN - 3, TOPMARGIN - 7, (BOARDWIDTH * BOXSIZE) + 8, (BOARDHEIGHT * BOXSIZE) + 8), 5)
 	pygame.draw.rect(DISPLAYSURF, BGCOLOR, (XMARGIN, TOPMARGIN, BOXSIZE * BOARDWIDTH, BOXSIZE * BOARDHEIGHT))
@@ -380,7 +379,7 @@ def drawNextPiece(piece):
 	nextRect = nextSurf.get_rect()
 	nextRect.topleft = (WINDOWWIDTH - 120, 80)
 	DISPLAYSURF.blit(nextSurf, nextRect)
-	drawPiece(piece, pixelx==WINDOWWIDTH-120, pixely=100)
+	drawPiece(piece, pixelx=WINDOWWIDTH-120, pixely=100)
 
 def getBlankBoard():
 	board = []
@@ -429,4 +428,3 @@ def drawStatus(score, level):
 
 if __name__ == '__main__':
 	main()
-
