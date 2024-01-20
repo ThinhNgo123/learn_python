@@ -33,6 +33,7 @@ class Viewport():
 
     def draw(self):
         self.scene.sprites.sort(key=cmp_to_key(self.compareSprites))
+        # print(self.scene.sprites)
         for sprite in self.scene.sprites:
             sprite.draw(self, self.screen)
 

@@ -16,7 +16,7 @@ class Main():
     def __init__(self):
         pygame.init()
 
-        screen = pygame.display.set_mode((1280, 600), pygame.RESIZABLE | pygame.DOUBLEBUF | pygame.HWSURFACE)
+        screen = pygame.display.set_mode((1280, 500), pygame.RESIZABLE | pygame.DOUBLEBUF | pygame.HWSURFACE)
         pygame.display.set_caption("PyBlocks")
 
         icon = loadImage("img/icon.png")
