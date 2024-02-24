@@ -1,0 +1,22 @@
+set(NIFTEST
+    niftest.cpp
+)
+source_group(components\\nif\\tests FILES ${NIFTEST})
+
+# Main executable
+openmw_add_executable(niftest
+    ${NIFTEST}
+)
+
+target_link_libraries(niftest
+    components
+)
+
+if (BUILD_WITH_CODE_COVERAGE)
+    target_compile_options(niftest PRIVATE --coverage)
+    target_link_libraries(niftest gcov)
+endif()
+
+if (MSVC)
+    target_precompile_headers(niftest PRIVATE <filesystem>)
+endif()

@@ -1,0 +1,360 @@
+#include "loadland.hpp"
+
+#include <algorithm>
+#include <cstdint>
+#include <limits>
+#include <utility>
+
+#include "components/esm/defs.hpp"
+#include "esmreader.hpp"
+#include "esmwriter.hpp"
+
+namespace ESM
+{
+    namespace
+    {
+        void transposeTextureData(const std::uint16_t* in, std::uint16_t* out)
+        {
+            int readPos = 0; // bit ugly, but it works
+            for (int y1 = 0; y1 < 4; y1++)
+                for (int x1 = 0; x1 < 4; x1++)
+                    for (int y2 = 0; y2 < 4; y2++)
+                        for (int x2 = 0; x2 < 4; x2++)
+                            out[(y1 * 4 + y2) * 16 + (x1 * 4 + x2)] = in[readPos++];
+        }
+
+        // Loads data and marks it as loaded. Return true if data is actually loaded from reader, false otherwise
+        // including the case when data is already loaded.
+        bool condLoad(ESMReader& reader, int flags, int& targetFlags, int dataFlag, void* ptr, unsigned int size)
+        {
+            if ((targetFlags & dataFlag) == 0 && (flags & dataFlag) != 0)
+            {
+                reader.getHExact(ptr, size);
+                targetFlags |= dataFlag;
+                return true;
+            }
+            reader.skipHSubSize(size);
+            return false;
+        }
+    }
+
+    void Land::load(ESMReader& esm, bool& isDeleted)
+    {
+        isDeleted = false;
+
+        bool hasLocation = false;
+        bool isLoaded = false;
+        while (!isLoaded && esm.hasMoreSubs())
+        {
+            esm.getSubName();
+            switch (esm.retSubName().toInt())
+            {
+                case fourCC("INTV"):
+                    esm.getSubHeader();
+                    if (esm.getSubSize() != 8)
+                        esm.fail("Subrecord size is not equal to 8");
+                    esm.getT(mX);
+                    esm.getT(mY);
+                    hasLocation = true;
+                    break;
+                case fourCC("DATA"):
+                    esm.getHT(mFlags);
+                    break;
+                case SREC_DELE:
+                    esm.skipHSub();
+                    isDeleted = true;
+                    break;
+                default:
+                    esm.cacheSubName();
+                    isLoaded = true;
+                    break;
+            }
+        }
+
+        if (!hasLocation)
+            esm.fail("Missing INTV subrecord");
+
+        mContext = esm.getContext();
+
+        mLandData = nullptr;
+        std::fill(std::begin(mWnam), std::end(mWnam), 0);
+
+        // Skip the land data here. Load it when the cell is loaded.
+        while (esm.hasMoreSubs())
+        {
+            esm.getSubName();
+            switch (esm.retSubName().toInt())
+            {
+                case fourCC("VNML"):
+                    esm.skipHSub();
+                    mDataTypes |= DATA_VNML;
+                    break;
+                case fourCC("VHGT"):
+                    esm.skipHSub();
+                    mDataTypes |= DATA_VHGT;
+                    break;
+                case fourCC("WNAM"):
+                    esm.getHExact(mWnam.data(), mWnam.size());
+                    mDataTypes |= DATA_WNAM;
+                    break;
+                case fourCC("VCLR"):
+                    esm.skipHSub();
+                    mDataTypes |= DATA_VCLR;
+                    break;
+                case fourCC("VTEX"):
+                    esm.skipHSub();
+                    mDataTypes |= DATA_VTEX;
+                    break;
+                default:
+                    esm.fail("Unknown subrecord");
+                    break;
+            }
+        }
+    }
+
+    void Land::save(ESMWriter& esm, bool isDeleted) const
+    {
+        esm.startSubRecord("INTV");
+        esm.writeT(mX);
+        esm.writeT(mY);
+        esm.endRecord("INTV");
+
+        esm.writeHNT("DATA", mFlags);
+
+        if (isDeleted)
+        {
+            esm.writeHNString("DELE", "", 3);
+            return;
+        }
+
+        if (mLandData)
+        {
+            if (mDataTypes & Land::DATA_VNML)
+            {
+                esm.writeHNT("VNML", mLandData->mNormals);
+            }
+            if (mDataTypes & Land::DATA_VHGT)
+            {
+                VHGT offsets;
+                offsets.mHeightOffset = mLandData->mHeights[0] / HEIGHT_SCALE;
+                offsets.mUnk1 = mLandData->mUnk1;
+                offsets.mUnk2 = mLandData->mUnk2;
+
+                float prevY = mLandData->mHeights[0];
+                int number = 0; // avoid multiplication
+                for (int i = 0; i < LAND_SIZE; ++i)
+                {
+                    float diff = (mLandData->mHeights[number] - prevY) / HEIGHT_SCALE;
+                    offsets.mHeightData[number]
+                        = diff >= 0 ? static_cast<std::int8_t>(diff + 0.5) : static_cast<std::int8_t>(diff - 0.5);
+
+                    float prevX = prevY = mLandData->mHeights[number];
+                    ++number;
+
+                    for (int j = 1; j < LAND_SIZE; ++j)
+                    {
+                        diff = (mLandData->mHeights[number] - prevX) / HEIGHT_SCALE;
+                        offsets.mHeightData[number]
+                            = diff >= 0 ? static_cast<std::int8_t>(diff + 0.5) : static_cast<std::int8_t>(diff - 0.5);
+
+                        prevX = mLandData->mHeights[number];
+                        ++number;
+                    }
+                }
+                esm.writeHNT("VHGT", offsets, sizeof(VHGT));
+            }
+            if (mDataTypes & Land::DATA_WNAM)
+            {
+                // Generate WNAM record
+                std::int8_t wnam[LAND_GLOBAL_MAP_LOD_SIZE];
+                constexpr float max = std::numeric_limits<std::int8_t>::max();
+                constexpr float min = std::numeric_limits<std::int8_t>::min();
+                constexpr float vertMult = static_cast<float>(Land::LAND_SIZE - 1) / LAND_GLOBAL_MAP_LOD_SIZE_SQRT;
+                for (int row = 0; row < LAND_GLOBAL_MAP_LOD_SIZE_SQRT; ++row)
+                {
+                    for (int col = 0; col < LAND_GLOBAL_MAP_LOD_SIZE_SQRT; ++col)
+                    {
+                        float height = mLandData->mHeights[static_cast<int>(row * vertMult) * Land::LAND_SIZE
+                            + static_cast<int>(col * vertMult)];
+                        height /= height > 0 ? 128.f : 16.f;
+                        height = std::clamp(height, min, max);
+                        wnam[row * LAND_GLOBAL_MAP_LOD_SIZE_SQRT + col] = static_cast<std::int8_t>(height);
+                    }
+                }
+                esm.writeHNT("WNAM", wnam);
+            }
+            if (mDataTypes & Land::DATA_VCLR)
+            {
+                esm.writeHNT("VCLR", mLandData->mColours);
+            }
+            if (mDataTypes & Land::DATA_VTEX)
+            {
+                uint16_t vtex[LAND_NUM_TEXTURES];
+                transposeTextureData(mLandData->mTextures, vtex);
+                esm.writeHNT("VTEX", vtex);
+            }
+        }
+    }
+
+    void Land::blank()
+    {
+        setPlugin(0);
+
+        std::fill(std::begin(mWnam), std::end(mWnam), 0);
+
+        if (mLandData == nullptr)
+            mLandData = std::make_unique<LandData>();
+
+        mLandData->mHeightOffset = 0;
+        std::fill(std::begin(mLandData->mHeights), std::end(mLandData->mHeights), 0);
+        mLandData->mMinHeight = 0;
+        mLandData->mMaxHeight = 0;
+        for (int i = 0; i < LAND_NUM_VERTS; ++i)
+        {
+            mLandData->mNormals[i * 3 + 0] = 0;
+            mLandData->mNormals[i * 3 + 1] = 0;
+            mLandData->mNormals[i * 3 + 2] = 127;
+        }
+        std::fill(std::begin(mLandData->mTextures), std::end(mLandData->mTextures), 0);
+        std::fill(std::begin(mLandData->mColours), std::end(mLandData->mColours), 255);
+        mLandData->mUnk1 = 0;
+        mLandData->mUnk2 = 0;
+        mLandData->mDataLoaded
+            = Land::DATA_VNML | Land::DATA_VHGT | Land::DATA_WNAM | Land::DATA_VCLR | Land::DATA_VTEX;
+        mDataTypes = mLandData->mDataLoaded;
+
+        // No file associated with the land now
+        mContext.filename.clear();
+    }
+
+    void Land::loadData(int flags) const
+    {
+        if (mLandData == nullptr)
+            mLandData = std::make_unique<LandData>();
+
+        loadData(flags, *mLandData);
+    }
+
+    void Land::loadData(int flags, LandData& data) const
+    {
+        // Try to load only available data
+        flags = flags & mDataTypes;
+        // Return if all required data is loaded
+        if ((data.mDataLoaded & flags) == flags)
+        {
+            return;
+        }
+
+        if (mContext.filename.empty())
+        {
+            // Make sure there is data, and that it doesn't point to the same object.
+            if (mLandData != nullptr && mLandData.get() != &data)
+                data = *mLandData;
+
+            return;
+        }
+
+        ESMReader reader;
+        reader.restoreContext(mContext);
+
+        if (reader.isNextSub("VNML"))
+        {
+            condLoad(reader, flags, data.mDataLoaded, DATA_VNML, data.mNormals, sizeof(data.mNormals));
+        }
+
+        if (reader.isNextSub("VHGT"))
+        {
+            VHGT vhgt;
+            if (condLoad(reader, flags, data.mDataLoaded, DATA_VHGT, &vhgt, sizeof(vhgt)))
+            {
+                data.mMinHeight = std::numeric_limits<float>::max();
+                data.mMaxHeight = -std::numeric_limits<float>::max();
+                float rowOffset = vhgt.mHeightOffset;
+                for (int y = 0; y < LAND_SIZE; y++)
+                {
+                    rowOffset += vhgt.mHeightData[y * LAND_SIZE];
+
+                    data.mHeights[y * LAND_SIZE] = rowOffset * HEIGHT_SCALE;
+                    if (rowOffset * HEIGHT_SCALE > data.mMaxHeight)
+                        data.mMaxHeight = rowOffset * HEIGHT_SCALE;
+                    if (rowOffset * HEIGHT_SCALE < data.mMinHeight)
+                        data.mMinHeight = rowOffset * HEIGHT_SCALE;
+
+                    float colOffset = rowOffset;
+                    for (int x = 1; x < LAND_SIZE; x++)
+                    {
+                        colOffset += vhgt.mHeightData[y * LAND_SIZE + x];
+                        data.mHeights[x + y * LAND_SIZE] = colOffset * HEIGHT_SCALE;
+
+                        if (colOffset * HEIGHT_SCALE > data.mMaxHeight)
+                            data.mMaxHeight = colOffset * HEIGHT_SCALE;
+                        if (colOffset * HEIGHT_SCALE < data.mMinHeight)
+                            data.mMinHeight = colOffset * HEIGHT_SCALE;
+                    }
+                }
+                data.mUnk1 = vhgt.mUnk1;
+                data.mUnk2 = vhgt.mUnk2;
+            }
+        }
+
+        if (reader.isNextSub("WNAM"))
+            reader.skipHSub();
+
+        if (reader.isNextSub("VCLR"))
+            condLoad(reader, flags, data.mDataLoaded, DATA_VCLR, data.mColours, 3 * LAND_NUM_VERTS);
+        if (reader.isNextSub("VTEX"))
+        {
+            uint16_t vtex[LAND_NUM_TEXTURES];
+            if (condLoad(reader, flags, data.mDataLoaded, DATA_VTEX, vtex, sizeof(vtex)))
+            {
+                transposeTextureData(vtex, data.mTextures);
+            }
+        }
+    }
+
+    void Land::unloadData()
+    {
+        mLandData = nullptr;
+    }
+
+    bool Land::isDataLoaded(int flags) const
+    {
+        return mLandData && (mLandData->mDataLoaded & flags) == flags;
+    }
+
+    Land::Land(const Land& land)
+        : mFlags(land.mFlags)
+        , mX(land.mX)
+        , mY(land.mY)
+        , mContext(land.mContext)
+        , mDataTypes(land.mDataTypes)
+        , mWnam(land.mWnam)
+        , mLandData(land.mLandData != nullptr ? std::make_unique<LandData>(*land.mLandData) : nullptr)
+    {
+    }
+
+    Land& Land::operator=(const Land& land)
+    {
+        Land copy(land);
+        *this = std::move(copy);
+        return *this;
+    }
+
+    const Land::LandData* Land::getLandData(int flags) const
+    {
+        if (!(flags & mDataTypes))
+            return nullptr;
+
+        loadData(flags);
+        return mLandData.get();
+    }
+
+    void Land::add(int flags)
+    {
+        if (mLandData == nullptr)
+            mLandData = std::make_unique<LandData>();
+
+        mDataTypes |= flags;
+        mLandData->mDataLoaded |= flags;
+    }
+}
