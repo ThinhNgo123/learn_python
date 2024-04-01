@@ -34,3 +34,16 @@ def message(msg):
 	print(msg)
 
 message("Hello world")
+
+def decorator(func):
+	def inner(msg):
+		print(msg)
+		return func(msg)
+	return inner
+
+def message(msg):
+    return msg
+
+message = decorator(message)
+print(message("hello"))
+input("")

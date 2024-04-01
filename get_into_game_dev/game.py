@@ -59,16 +59,22 @@ class App:
 
 class Triangle:
     def __init__(self) -> None:
-        self.vertices = (
+        self.vertices = [
             -0.5, -0.5, 0, 1, 0, 0,
              0.5, -0.5, 0, 0, 1, 0,
                0,  0.5, 0, 0, 0, 1 
-        )
-
+        ]
         self.vertices = np.array(self.vertices, dtype=np.float32)
-        print(self.vertices.nbytes)
         self.vertex_count = 3
         self.vao = glGenVertexArrays(1)
+        # glCreateVertexArrays
+        # glGenVertexArrays
+        # glCreateBuffers
+        # glEnableVertexArrayAttrib()
+        # glVertexAttribPointer()
+        # glGetUniformLocation()
+        # glUniformMatrix4fv()
+        # glDrawElements()
         glBindVertexArray(self.vao)
         self.vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
