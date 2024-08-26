@@ -86,9 +86,9 @@ while running:
                 glRotated(angle, 0, 1, 0)
                 draw_sphere(5)
         
-        # glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         # glRotated(angle, 0, 1, 0)
-        # draw_sphere(4)
+        draw_sphere(5)
 
     pygame.display.set_caption(f"FPS: {clock.get_fps()}")
     pygame.display.flip()

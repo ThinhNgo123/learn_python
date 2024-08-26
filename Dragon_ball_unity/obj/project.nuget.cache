@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "wCyYS0ZYfiw=",
+  "success": true,
+  "projectFilePath": "D:\\Code\\repositories\\learn_python\\Dragon_ball_unity\\Assembly-CSharp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\DELL\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.3\\microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
+    "C:\\Users\\DELL\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net35\\1.0.3\\microsoft.netframework.referenceassemblies.net35.1.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
