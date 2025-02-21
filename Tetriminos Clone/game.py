@@ -25,13 +25,9 @@ def rotate_shape(shape: List[List[int]], shapes: Dict[str, List[List[int]]]):
                 return shapes[shape_name][(i + 1) % len(shapes[shape_name])] 
 
 def create_board_game(width, height):
-    # print(width, height)
     board = []
     for _ in range(width):
         board.append([None for _ in range(height)])
-    # for i in range(len(board)):
-    #     for j in range(len(board[i])):
-    #         print(id(board[i][j]), end=" ")
     return board 
 
 def draw_board(win: pygame.Surface, board: List[Union[pygame.Surface, None]], cell_size):
@@ -53,16 +49,14 @@ def move_curret_blocks(board: List[Union[pygame.Surface, None]], move_x: int, mo
     index_pos = 0
     for i in range(len(shape_current)):
         for j in range(len(shape_current[0])):
-            # print("pos", positions[index_pos])
-            # print("shape", shape_current[i][j])
             if check_position_outside_board(positions[index_pos]) or shape_current[i][j] == 0:
                 index_pos += 1
                 shape_in_board.append(None)
                 continue
-            # print("board", board[positions[index_pos][0]][positions[index_pos][1]])
             shape_in_board.append(board[positions[index_pos][0]][positions[index_pos][1]])
             board[positions[index_pos][0]][positions[index_pos][1]] = None
             index_pos += 1
+
     index_pos = 0
     for i in range(len(shape_current)):
         for j in range(len(shape_current[0])):
@@ -82,16 +76,12 @@ def remove_blocks(board: List[Union[pygame.Surface, None]], shape, positions: Li
             board[positions[index_pos][0]][positions[index_pos][1]] = None
             index_pos += 1
 
-
 def check_position_outside_board(position: List[int]):
     if position[0] < 0 or position[1] < 0 or position[0] > 9 or position[1] > 23:
         return True
     return False
 
 def check_can_move_in_direction(board: List[Union[pygame.Surface, None]], shape, block, positions, direction: str):
-    # print(board)
-    # print(shape)
-    # print(positions)
     if direction == "DOWN":
         remove_blocks(board, shape, positions)
         index_pos = 0
@@ -186,7 +176,6 @@ def check_gameover(board):
     pass
 
 def draw_shape_next(win: pygame.Surface, background_imgs: Dict[str, pygame.Surface], shape_next: List[List[int]], block, cell_size):
-    # print(shape_next)
     WIDTH = HEIGHT = 6
     x, y = 450, 400
     for i in range(WIDTH):
@@ -216,6 +205,37 @@ def draw_score_and_level(win: pygame.Surface, score, score_pos, level, level_pos
 
 def calc_score_and_level(line_number_deleted: int):
     return line_number_deleted * 10, int((line_number_deleted * 10 / 100) + 1)
+
+def check_can_move_down_ghost(board: List[Union[pygame.Surface, None]], shape: List[List[int]], positions_ghost: List[List[int]], positions_current: List[List[int]]):
+    index_pos = 0
+    for i in range(len(shape)):
+        for j in range(len(shape[0])):
+            if shape[i][j] == 0 or [positions_ghost[index_pos][0], positions_ghost[index_pos][1] + 1] in positions_current:
+                index_pos += 1
+                continue
+            if check_position_outside_board([positions_ghost[index_pos][0], positions_ghost[index_pos][1] + 1]) or \
+                board[positions_ghost[index_pos][0]][positions_ghost[index_pos][1] + 1] != None:
+                return False
+            index_pos += 1
+    return True
+
+def calc_position_ghost_blocks(board: List[Union[pygame.Surface, None]], shape: List[List[int]], positions_current: List[List[int]]):
+    ghost_pos = []
+    for pos in positions_current:
+        ghost_pos.append([pos[0], pos[1]])
+    while check_can_move_down_ghost(board, shape, ghost_pos, positions_current):
+        for i in range(len(ghost_pos)):
+            ghost_pos[i][1] += 1
+    # print(ghost_pos)
+    return ghost_pos
+
+def draw_ghost_blocks(win: pygame.Surface, ghost_img: pygame.Surface, shape: List[List[int]], positions: List[List[int]], cell_size: int):
+    index_pos = 0
+    for i in range(len(shape)):
+        for j in range(len(shape[0])):
+            if shape[i][j] == 1: 
+                win.blit(ghost_img, ((positions[i][0] + 1) * cell_size, (positions[i][1] + 1 - 4) * cell_size))
+            index_pos += 1
 
 pygame.init()
 win = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -250,6 +270,8 @@ BACKGROUND_IMGS = {
     "BG1": scale_image(load_image("./Board/BG_1.png"), SCALE_SHAPE),
     "BG2": scale_image(load_image("./Board/BG_2.png"), SCALE_SHAPE)
 }
+
+GHOST_BLOCK_IMGS = scale_image(load_image("./Ghost/Single.png"), SCALE_SHAPE)
 
 # global
 clock = pygame.time.Clock()
@@ -308,6 +330,8 @@ def main():
 
 
         # update frame
+        position_shape_ghost_current = calc_position_ghost_blocks(board, shape_current, position_shape_current)
+        print(position_shape_ghost_current)
         current_frame += 1
         if current_frame >= FREQ_FALL - level * 2:
             if check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "DOWN"):
@@ -329,9 +353,11 @@ def main():
                 ]
             current_frame = 0
 
+        # draw
         win.fill(DARK_CHARCOAL)
         win.blit(BOARD_IMG, (0, 0))
         draw_board(win, board, CELL_SIZE)
+        draw_ghost_blocks(win, GHOST_BLOCK_IMGS, shape_current, position_shape_ghost_current, CELL_SIZE)
         draw_shape_next(win, BACKGROUND_IMGS, shape_next, block_next, CELL_SIZE)
         draw_score_and_level(win, score, (460, 200), level, (460, 130), FONT, WHITE)
         pygame.display.update()
