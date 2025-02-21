@@ -1,4 +1,23 @@
-3. ve hinh
-4. tinh diem
-6. di chuyen
-7. xoa hang
+1. Draw
+    - board (done)
+    - piece current (done)
+    - piece rotate (done)
+    - piece ghost
+    - piece next (done)
+    - score (done)
+    - level (done)
+
+2. Calc score (done)
+
+3. Move
+    - Down (done)
+    - Left (done)
+    - Right (done)
+
+4. Delete lines (done)
+
+5. Collision handling (board voi piece, piece voi piece) (done)
+
+6. Sound
+    - Background
+    - Delete lines
