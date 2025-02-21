@@ -206,11 +206,11 @@ def draw_score_and_level(win: pygame.Surface, score, score_pos, level, level_pos
 def calc_score_and_level(line_number_deleted: int):
     return line_number_deleted * 10, int((line_number_deleted * 10 / 100) + 1)
 
-def check_can_move_down_ghost(board: List[Union[pygame.Surface, None]], shape: List[List[int]], positions_ghost: List[List[int]], positions_current: List[List[int]]):
+def check_can_move_down_ghost(board: List[Union[pygame.Surface, None]], shape: List[List[int]], positions_ghost: List[List[int]]):
     index_pos = 0
     for i in range(len(shape)):
         for j in range(len(shape[0])):
-            if shape[i][j] == 0 or [positions_ghost[index_pos][0], positions_ghost[index_pos][1] + 1] in positions_current:
+            if shape[i][j] == 0:
                 index_pos += 1
                 continue
             if check_position_outside_board([positions_ghost[index_pos][0], positions_ghost[index_pos][1] + 1]) or \
@@ -219,14 +219,15 @@ def check_can_move_down_ghost(board: List[Union[pygame.Surface, None]], shape: L
             index_pos += 1
     return True
 
-def calc_position_ghost_blocks(board: List[Union[pygame.Surface, None]], shape: List[List[int]], positions_current: List[List[int]]):
+def calc_position_ghost_blocks(board: List[Union[pygame.Surface, None]], shape: List[List[int]], positions_current: List[List[int]], block):
     ghost_pos = []
+    remove_blocks(board, shape, positions_current)
     for pos in positions_current:
         ghost_pos.append([pos[0], pos[1]])
-    while check_can_move_down_ghost(board, shape, ghost_pos, positions_current):
+    while check_can_move_down_ghost(board, shape, ghost_pos):
         for i in range(len(ghost_pos)):
             ghost_pos[i][1] += 1
-    # print(ghost_pos)
+    add_shape_to_board(board, shape, block, positions_current)
     return ghost_pos
 
 def draw_ghost_blocks(win: pygame.Surface, ghost_img: pygame.Surface, shape: List[List[int]], positions: List[List[int]], cell_size: int):
@@ -234,7 +235,7 @@ def draw_ghost_blocks(win: pygame.Surface, ghost_img: pygame.Surface, shape: Lis
     for i in range(len(shape)):
         for j in range(len(shape[0])):
             if shape[i][j] == 1: 
-                win.blit(ghost_img, ((positions[i][0] + 1) * cell_size, (positions[i][1] + 1 - 4) * cell_size))
+                win.blit(ghost_img, ((positions[index_pos][0] + 1) * cell_size, (positions[index_pos][1] + 1 - 4) * cell_size))
             index_pos += 1
 
 pygame.init()
@@ -292,6 +293,7 @@ def main():
     block_next = random_block(BLOCK_IMGS)
     shape_next = random_shape(SHAPES)
     add_shape_to_board(board, shape_current, block_current, position_shape_current)
+    position_shape_ghost_current = None
     number_line_deleted = 0
     score = 0
     level = 1
@@ -305,8 +307,11 @@ def main():
                 running = False
             if event.type == KEYDOWN:
                 if event.key == K_DOWN:
-                    if check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "DOWN"):
+                    # if check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "DOWN"):
+                    #     move_curret_blocks(board, 0, 1, shape_current, position_shape_current)
+                    while check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "DOWN"):
                         move_curret_blocks(board, 0, 1, shape_current, position_shape_current)
+                    current_frame = 100000
                 elif event.key == K_UP:
                     move_curret_blocks(board, 0, -1, shape_current, position_shape_current)
                 if event.key == K_RIGHT:
@@ -330,10 +335,10 @@ def main():
 
 
         # update frame
-        position_shape_ghost_current = calc_position_ghost_blocks(board, shape_current, position_shape_current)
-        print(position_shape_ghost_current)
+        position_shape_ghost_current = calc_position_ghost_blocks(board, shape_current, position_shape_current, block_current)
+        # print(position_shape_ghost_current)
         current_frame += 1
-        if current_frame >= FREQ_FALL - level * 2:
+        if current_frame >= FREQ_FALL - level * 3:
             if check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "DOWN"):
                 # print("down")
                 move_curret_blocks(board, 0, 1, shape_current, position_shape_current)

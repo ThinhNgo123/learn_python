@@ -2,7 +2,7 @@
     - board (done)
     - piece current (done)
     - piece rotate (done)
-    - piece ghost
+    - piece ghost (done)
     - piece next (done)
     - score (done)
     - level (done)
@@ -20,4 +20,11 @@
 
 6. Sound
     - Background
-    - Delete lines
+    - Increase score
+    - Gameover
+
+7. Gameover
+
+8. Screen
+    - Start
+    - Gameover

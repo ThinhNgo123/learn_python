@@ -1,0 +1,1 @@
+# This folder contains audio files (gameOver.ogg, line.ogg, music.ogg, newScore.ogg, and sounds.ogg)
