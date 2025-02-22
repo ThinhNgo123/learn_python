@@ -1,4 +1,4 @@
-from os import truncate
+import sys
 import pygame
 import random
 from typing import Dict, List, Any, Union, Optional
@@ -30,13 +30,13 @@ def create_board_game(width, height):
         board.append([None for _ in range(height)])
     return board 
 
-def draw_board(win: pygame.Surface, board: List[Union[pygame.Surface, None]], cell_size):
+def draw_board(win: pygame.Surface, board: List[List[Union[pygame.Surface, None]]], cell_size):
     for i in range(len(board)):
         for j in range(len(board[i])):
             if board[i][j] != None:
                 win.blit(board[i][j], (cell_size * (i + 1), cell_size * (j + 1 - 4)))
 
-def add_shape_to_board(board: List[Union[pygame.Surface, None]], shape, block, positions: List[List[int]]):
+def add_shape_to_board(board: List[List[Union[pygame.Surface, None]]], shape, block, positions: List[List[int]]):
     index_pos = 0
     for i in range(len(shape)):
         for j in range(len(shape[0])):
@@ -44,7 +44,7 @@ def add_shape_to_board(board: List[Union[pygame.Surface, None]], shape, block, p
                 board[positions[index_pos][0]][positions[index_pos][1]] = block
             index_pos += 1
 
-def move_curret_blocks(board: List[Union[pygame.Surface, None]], move_x: int, move_y: int, shape_current, positions: List[List[int]]):
+def move_curret_blocks(board: List[List[Union[pygame.Surface, None]]], move_x: int, move_y: int, shape_current, positions: List[List[int]]):
     shape_in_board = []
     index_pos = 0
     for i in range(len(shape_current)):
@@ -66,7 +66,7 @@ def move_curret_blocks(board: List[Union[pygame.Surface, None]], move_x: int, mo
             positions[index_pos][1] += move_y
             index_pos += 1
 
-def remove_blocks(board: List[Union[pygame.Surface, None]], shape, positions: List[List[int]]):
+def remove_blocks(board: List[List[Union[pygame.Surface, None]]], shape, positions: List[List[int]]):
     index_pos = 0
     for i in range(len(shape)):
         for j in range(len(shape[0])):
@@ -81,7 +81,7 @@ def check_position_outside_board(position: List[int]):
         return True
     return False
 
-def check_can_move_in_direction(board: List[Union[pygame.Surface, None]], shape, block, positions, direction: str):
+def check_can_move_in_direction(board: List[List[Union[pygame.Surface, None]]], shape, block, positions, direction: str):
     if direction == "DOWN":
         remove_blocks(board, shape, positions)
         index_pos = 0
@@ -124,7 +124,7 @@ def check_can_move_in_direction(board: List[Union[pygame.Surface, None]], shape,
         add_shape_to_board(board, shape, block, positions)
     return True
 
-def check_can_rotate_and_rotate(board: List[Union[pygame.Surface, None]], shape_current, shape_rotate, block, positions):
+def check_can_rotate_and_rotate(board: List[List[Union[pygame.Surface, None]]], shape_current, shape_rotate, block, positions):
     # print(positions)
     can_rotate = True
     index_pos = 0
@@ -148,13 +148,13 @@ def check_can_rotate_and_rotate(board: List[Union[pygame.Surface, None]], shape_
     add_shape_to_board(board, shape_rotate, block, positions)
     return shape_rotate
 
-def check_line_complete(board: List[Union[pygame.Surface, None]], line_index):
+def check_line_complete(board: List[List[Union[pygame.Surface, None]]], line_index):
     for column_index in range(len(board)):
         if board[column_index][line_index] == None:
             return False
     return True
 
-def delete_lines_complete(board: List[Union[pygame.Surface, None]]):
+def delete_lines_complete(board: List[List[Union[pygame.Surface, None]]]):
     # print("call delete")
     BOARD_HEIGHT = 24
     BOARD_WIDTH = 10
@@ -172,8 +172,6 @@ def delete_lines_complete(board: List[Union[pygame.Surface, None]]):
             line_index -= 1
     return number_line_complete
 
-def check_gameover(board):
-    pass
 
 def draw_shape_next(win: pygame.Surface, background_imgs: Dict[str, pygame.Surface], shape_next: List[List[int]], block, cell_size):
     WIDTH = HEIGHT = 6
@@ -206,7 +204,7 @@ def draw_score_and_level(win: pygame.Surface, score, score_pos, level, level_pos
 def calc_score_and_level(line_number_deleted: int):
     return line_number_deleted * 10, int((line_number_deleted * 10 / 100) + 1)
 
-def check_can_move_down_ghost(board: List[Union[pygame.Surface, None]], shape: List[List[int]], positions_ghost: List[List[int]]):
+def check_can_move_down_ghost(board: List[List[Union[pygame.Surface, None]]], shape: List[List[int]], positions_ghost: List[List[int]]):
     index_pos = 0
     for i in range(len(shape)):
         for j in range(len(shape[0])):
@@ -219,7 +217,7 @@ def check_can_move_down_ghost(board: List[Union[pygame.Surface, None]], shape: L
             index_pos += 1
     return True
 
-def calc_position_ghost_blocks(board: List[Union[pygame.Surface, None]], shape: List[List[int]], positions_current: List[List[int]], block):
+def calc_position_ghost_blocks(board: List[List[Union[pygame.Surface, None]]], shape: List[List[int]], positions_current: List[List[int]], block):
     ghost_pos = []
     remove_blocks(board, shape, positions_current)
     for pos in positions_current:
@@ -238,6 +236,108 @@ def draw_ghost_blocks(win: pygame.Surface, ghost_img: pygame.Surface, shape: Lis
                 win.blit(ghost_img, ((positions[index_pos][0] + 1) * cell_size, (positions[index_pos][1] + 1 - 4) * cell_size))
             index_pos += 1
 
+def check_gameover(board: List[List[Union[pygame.Surface, None]]], shape: List[List[int]], positions: List[List[int]]):
+    pos_temp = []
+    index_pos = 0
+    for i in range(len(shape)):
+        for j in range(len(shape[0])):
+            if shape[i][j] == 1:
+                pos_temp.append([positions[index_pos][0], positions[index_pos][1]])
+            index_pos += 1
+    index_pos = 0
+    for i in range(len(shape)):
+        for j in range(len(shape[0])):
+            if shape[i][j] == 1 and \
+                (board[positions[index_pos][0]][positions[index_pos][1]] != None or positions[index_pos] not in pos_temp):
+                return True
+            index_pos += 1
+    return False
+
+def start_screen(win: pygame.Surface):
+    width, height = win.get_size()
+    image_width, image_height = TITLE_IMG.get_size()
+    small_font = pygame.font.SysFont("Consolas", 30)
+    show_text = True
+    blink = FPS * 3 // 4
+    count = 0
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == KEYDOWN: 
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+                if event.key == K_SPACE:
+                    running = False
+        
+        win.fill(DARK_CHARCOAL)
+        win.blit(TITLE_IMG, ((width - image_width) // 2, height // 2 - 150))
+        # print(small_font.render("Press space to enter the game", True, WHITE).get_size())
+        if count > blink:
+            show_text = not show_text
+            count = 0
+        if show_text:
+            draw_text(
+                win, 
+                small_font, 
+                "Press space to enter the game", 
+                width // 2 - 246,
+                450,
+                WHITE
+            )
+        count += 1
+        pygame.display.update()
+        clock.tick(FPS)
+
+def game_over_screen(win: pygame.Surface):
+    width, height = win.get_size()
+    small_font = pygame.font.SysFont("Consolas", 30)
+    big_font = pygame.font.SysFont("Consolas", 120)
+    show_text = True
+    blink = FPS * 3 // 4
+    count = 0
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == KEYDOWN: 
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+                if event.key == K_SPACE:
+                    running = False
+        
+        # win.fill(DARK_CHARCOAL)
+        # print(big_font.render("Game Over", True, WHITE).get_size())
+        draw_text(
+                win, 
+                big_font, 
+                "Game Over", 
+                width // 2 - 297,
+                250,
+                WHITE
+            )
+        if count > blink:
+            show_text = not show_text
+            count = 0
+        if show_text:
+            draw_text(
+                win, 
+                small_font, 
+                "Press space to enter the game", 
+                width // 2 - 246,
+                450,
+                WHITE
+            )
+        count += 1
+        pygame.display.update()
+        clock.tick(FPS)
+
 pygame.init()
 win = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
@@ -249,7 +349,7 @@ BOARD_IMG = scale_image(BOARD_IMG, SCALE_BOARD)
 BOARD_WIDTH, BOARD_HEIGHT = BOARD_IMG.get_size()
 # BOARD_CELL_WIDTH, BOARD_CELL_HEIGHT = 10, 20
 
-# TITLE_IMG = scale_image(load_image("./Title/Title.png"), 0.2)
+TITLE_IMG = scale_image(load_image("./Title/Title.png"), 0.2)
 
 BLOCK_IMG = load_image("./Single Blocks/Blue.png")
 
@@ -274,12 +374,28 @@ BACKGROUND_IMGS = {
 
 GHOST_BLOCK_IMGS = scale_image(load_image("./Ghost/Single.png"), SCALE_SHAPE)
 
+# sound
+MUSIC_VOLUME = 0.03
+SOUND_VOLUME = 0.1
+pygame.mixer.music.load("./Sound/music.ogg")
+pygame.mixer.music.set_volume(MUSIC_VOLUME)
+
+SOUNDS = {
+    "gameover": pygame.mixer.Sound("./Sound/gameOver.ogg"),
+    "line": pygame.mixer.Sound("./Sound/line.ogg"),
+    "newscore": pygame.mixer.Sound("./Sound/newScore.ogg")
+}
+
+SOUNDS["gameover"].set_volume(SOUND_VOLUME)
+SOUNDS["line"].set_volume(SOUND_VOLUME)
+SOUNDS["newscore"].set_volume(SOUND_VOLUME)
+
 # global
 clock = pygame.time.Clock()
 # sans
 FONT = pygame.font.SysFont("ConsolasBold", 60)
 
-def main():
+def run():
     board = create_board_game(BOARD_CELL_WIDTH, BOARD_CELL_HEIGHT + 4)
     block_current = random_block(BLOCK_IMGS)
     shape_current = random_shape(SHAPES)
@@ -294,7 +410,7 @@ def main():
     shape_next = random_shape(SHAPES)
     add_shape_to_board(board, shape_current, block_current, position_shape_current)
     position_shape_ghost_current = None
-    number_line_deleted = 0
+    sum_number_line_deleted = 0
     score = 0
     level = 1
     current_frame = 0
@@ -330,7 +446,7 @@ def main():
                         block_current, 
                         position_shape_current
                     )
-                elif event.key == K_q:
+                elif event.key == K_p:
                     pass
 
 
@@ -338,14 +454,17 @@ def main():
         position_shape_ghost_current = calc_position_ghost_blocks(board, shape_current, position_shape_current, block_current)
         # print(position_shape_ghost_current)
         current_frame += 1
-        if current_frame >= FREQ_FALL - level * 3:
+        if current_frame >= FREQ_FALL - level * 30:
             if check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "DOWN"):
                 # print("down")
                 move_curret_blocks(board, 0, 1, shape_current, position_shape_current)
             else:
                 # print("ok")
-                number_line_deleted += delete_lines_complete(board)
-                score, level = calc_score_and_level(number_line_deleted)
+                number_line_deleted = delete_lines_complete(board)
+                if number_line_deleted > 0:
+                    SOUNDS["newscore"].play()
+                sum_number_line_deleted += number_line_deleted
+                score, level = calc_score_and_level(sum_number_line_deleted)
                 block_current = block_next
                 shape_current = shape_next
                 block_next = random_block(BLOCK_IMGS)
@@ -358,6 +477,12 @@ def main():
                 ]
             current_frame = 0
 
+        # check gameover
+        if check_gameover(board, shape_current, position_shape_current):
+            print("gameover")
+            SOUNDS["gameover"].play()
+            return
+
         # draw
         win.fill(DARK_CHARCOAL)
         win.blit(BOARD_IMG, (0, 0))
@@ -368,7 +493,13 @@ def main():
         pygame.display.update()
         clock.tick(FPS)
 
-    pygame.quit()
+def main():
+    while True:
+        start_screen(win)
+        pygame.mixer.music.play(loops=-1)
+        run()
+        pygame.mixer.music.stop()
+        game_over_screen(win)
 
 if __name__ == "__main__":
     main()

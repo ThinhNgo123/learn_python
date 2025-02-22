@@ -19,12 +19,12 @@
 5. Collision handling (board voi piece, piece voi piece) (done)
 
 6. Sound
-    - Background
-    - Increase score
-    - Gameover
+    - Background (done)
+    - Increase score (done)
+    - Gameover (done)
 
 7. Gameover
 
 8. Screen
-    - Start
-    - Gameover
+    - Start (done)
+    - Gameover (done)
