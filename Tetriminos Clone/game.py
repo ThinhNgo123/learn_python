@@ -237,18 +237,13 @@ def draw_ghost_blocks(win: pygame.Surface, ghost_img: pygame.Surface, shape: Lis
             index_pos += 1
 
 def check_gameover(board: List[List[Union[pygame.Surface, None]]], shape: List[List[int]], positions: List[List[int]]):
-    pos_temp = []
     index_pos = 0
     for i in range(len(shape)):
         for j in range(len(shape[0])):
-            if shape[i][j] == 1:
-                pos_temp.append([positions[index_pos][0], positions[index_pos][1]])
-            index_pos += 1
-    index_pos = 0
-    for i in range(len(shape)):
-        for j in range(len(shape[0])):
-            if shape[i][j] == 1 and \
-                (board[positions[index_pos][0]][positions[index_pos][1]] != None or positions[index_pos] not in pos_temp):
+            if shape[i][j] == 0 or check_position_outside_board(positions[index_pos]):
+                index_pos += 1
+                continue
+            if board[positions[index_pos][0]][positions[index_pos][1]] != None:
                 return True
             index_pos += 1
     return False
@@ -420,7 +415,8 @@ def run():
         #event
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                running = False
+                pygame.quit()
+                sys.exit()
             if event.type == KEYDOWN:
                 if event.key == K_DOWN:
                     # if check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "DOWN"):
@@ -454,7 +450,8 @@ def run():
         position_shape_ghost_current = calc_position_ghost_blocks(board, shape_current, position_shape_current, block_current)
         # print(position_shape_ghost_current)
         current_frame += 1
-        if current_frame >= FREQ_FALL - level * 30:
+        if current_frame >= FREQ_FALL - level * 3:
+            print(level)
             if check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "DOWN"):
                 # print("down")
                 move_curret_blocks(board, 0, 1, shape_current, position_shape_current)
@@ -475,13 +472,11 @@ def run():
                     [3, 2], [4, 2], [5, 2], [6, 2],
                     [3, 3], [4, 3], [5, 3], [6, 3]
                 ]
+                if check_gameover(board, shape_current, position_shape_current):
+                    print("gameover")
+                    SOUNDS["gameover"].play()
+                    return
             current_frame = 0
-
-        # check gameover
-        if check_gameover(board, shape_current, position_shape_current):
-            print("gameover")
-            SOUNDS["gameover"].play()
-            return
 
         # draw
         win.fill(DARK_CHARCOAL)
@@ -494,8 +489,8 @@ def run():
         clock.tick(FPS)
 
 def main():
+    start_screen(win)
     while True:
-        start_screen(win)
         pygame.mixer.music.play(loops=-1)
         run()
         pygame.mixer.music.stop()
