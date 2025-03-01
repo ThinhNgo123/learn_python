@@ -315,7 +315,7 @@ def game_over_screen(win: pygame.Surface):
                 "Game Over", 
                 width // 2 - 297,
                 250,
-                WHITE
+                RED
             )
         if count > blink:
             show_text = not show_text
@@ -333,8 +333,22 @@ def game_over_screen(win: pygame.Surface):
         pygame.display.update()
         clock.tick(FPS)
 
+def draw_pause(win: pygame.Surface):
+    big_font = pygame.font.SysFont("Consolas", 120)
+    # print(big_font.render("Paused", True, WHITE).get_size())
+    draw_text(
+                win, 
+                big_font, 
+                "Paused", 
+                win.get_width() // 2 - 198,
+                win.get_height() // 2 - 60,
+                WHITE
+            )
+
 pygame.init()
 win = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+pygame.display.set_caption("Tetris")
+pygame.display.set_icon(pygame.image.load("./Icon/OIP.jpg"))
 
 #image
 BOARD_IMG = load_image("./Board/Board.png")
@@ -381,7 +395,7 @@ SOUNDS = {
     "newscore": pygame.mixer.Sound("./Sound/newScore.ogg")
 }
 
-SOUNDS["gameover"].set_volume(SOUND_VOLUME)
+SOUNDS["gameover"].set_volume(0.5)
 SOUNDS["line"].set_volume(SOUND_VOLUME)
 SOUNDS["newscore"].set_volume(SOUND_VOLUME)
 
@@ -410,6 +424,7 @@ def run():
     level = 1
     current_frame = 0
     running = True
+    paused = False
     # loop
     while running:
         #event
@@ -418,23 +433,23 @@ def run():
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN:
-                if event.key == K_DOWN:
+                if event.key == K_DOWN and not paused:
                     # if check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "DOWN"):
                     #     move_curret_blocks(board, 0, 1, shape_current, position_shape_current)
                     while check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "DOWN"):
                         move_curret_blocks(board, 0, 1, shape_current, position_shape_current)
                     current_frame = 100000
-                elif event.key == K_UP:
+                if event.key == K_UP and not paused:
                     move_curret_blocks(board, 0, -1, shape_current, position_shape_current)
-                if event.key == K_RIGHT:
+                if event.key == K_RIGHT and not paused:
                     # print(position_shape_current)
                     if check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "RIGHT"):
                         move_curret_blocks(board, 1, 0, shape_current, position_shape_current)
                     # print(position_shape_current)
-                elif event.key == K_LEFT:
+                if event.key == K_LEFT and not paused:
                     if check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "LEFT"):
                         move_curret_blocks(board, -1, 0, shape_current, position_shape_current)
-                elif event.key == K_SPACE:
+                if event.key == K_SPACE and not paused:
                     shape_current = check_can_rotate_and_rotate(
                         board, 
                         shape_current,
@@ -442,41 +457,43 @@ def run():
                         block_current, 
                         position_shape_current
                     )
-                elif event.key == K_p:
-                    pass
+                if event.key == K_p:
+                    if pygame.mixer.music.get_busy():
+                        pygame.mixer.music.pause()
+                    else:
+                        pygame.mixer.music.unpause()
+                    paused = not paused
 
-
-        # update frame
-        position_shape_ghost_current = calc_position_ghost_blocks(board, shape_current, position_shape_current, block_current)
-        # print(position_shape_ghost_current)
-        current_frame += 1
-        if current_frame >= FREQ_FALL - level * 3:
-            print(level)
-            if check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "DOWN"):
-                # print("down")
-                move_curret_blocks(board, 0, 1, shape_current, position_shape_current)
-            else:
-                # print("ok")
-                number_line_deleted = delete_lines_complete(board)
-                if number_line_deleted > 0:
-                    SOUNDS["newscore"].play()
-                sum_number_line_deleted += number_line_deleted
-                score, level = calc_score_and_level(sum_number_line_deleted)
-                block_current = block_next
-                shape_current = shape_next
-                block_next = random_block(BLOCK_IMGS)
-                shape_next = random_shape(SHAPES)
-                position_shape_current = [
-                    [3, 0], [4, 0], [5, 0], [6, 0],
-                    [3, 1], [4, 1], [5, 1], [6, 1],
-                    [3, 2], [4, 2], [5, 2], [6, 2],
-                    [3, 3], [4, 3], [5, 3], [6, 3]
-                ]
-                if check_gameover(board, shape_current, position_shape_current):
-                    print("gameover")
-                    SOUNDS["gameover"].play()
-                    return
-            current_frame = 0
+        if not paused:
+            # update frame
+            position_shape_ghost_current = calc_position_ghost_blocks(board, shape_current, position_shape_current, block_current)
+            # print(position_shape_ghost_current)
+            current_frame += 1
+            if current_frame >= FREQ_FALL - level * 3:
+                if check_can_move_in_direction(board, shape_current, block_current, position_shape_current, "DOWN"):
+                    # print("down")
+                    move_curret_blocks(board, 0, 1, shape_current, position_shape_current)
+                else:
+                    # print("ok")
+                    number_line_deleted = delete_lines_complete(board)
+                    if number_line_deleted > 0:
+                        SOUNDS["newscore"].play()
+                    sum_number_line_deleted += number_line_deleted
+                    score, level = calc_score_and_level(sum_number_line_deleted)
+                    block_current = block_next
+                    shape_current = shape_next
+                    block_next = random_block(BLOCK_IMGS)
+                    shape_next = random_shape(SHAPES)
+                    position_shape_current = [
+                        [3, 0], [4, 0], [5, 0], [6, 0],
+                        [3, 1], [4, 1], [5, 1], [6, 1],
+                        [3, 2], [4, 2], [5, 2], [6, 2],
+                        [3, 3], [4, 3], [5, 3], [6, 3]
+                    ]
+                    if check_gameover(board, shape_current, position_shape_current):
+                        SOUNDS["gameover"].play()
+                        return
+                current_frame = 0
 
         # draw
         win.fill(DARK_CHARCOAL)
@@ -485,6 +502,8 @@ def run():
         draw_ghost_blocks(win, GHOST_BLOCK_IMGS, shape_current, position_shape_ghost_current, CELL_SIZE)
         draw_shape_next(win, BACKGROUND_IMGS, shape_next, block_next, CELL_SIZE)
         draw_score_and_level(win, score, (460, 200), level, (460, 130), FONT, WHITE)
+        if paused:
+            draw_pause(win)
         pygame.display.update()
         clock.tick(FPS)
 
