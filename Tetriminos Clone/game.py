@@ -1,7 +1,7 @@
 import sys
 import pygame
 import random
-from typing import Dict, List, Any, Union, Optional
+from typing import Dict, List, Union
 from pygame.locals import *
 from setting import *
 
