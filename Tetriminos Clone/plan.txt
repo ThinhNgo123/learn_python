@@ -23,7 +23,7 @@
     - Increase score (done)
     - Gameover (done)
 
-7. Gameover
+7. Gameover (done)
 
 8. Screen
     - Start (done)
