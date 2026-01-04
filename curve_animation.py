@@ -147,7 +147,7 @@ class CurveAnimation:
         pass
 
 
-window = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+window = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), flags=pygame.DOUBLEBUF)
 clock = pygame.time.Clock()
 
 delta_time = 0
@@ -212,5 +212,5 @@ while True:
 
     current_frame += 1
 
-    pygame.display.update()
+    pygame.display.flip()
     clock.tick(FPS)
